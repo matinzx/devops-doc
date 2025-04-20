@@ -1,0 +1,151 @@
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>مستند کامل راه‌اندازی Ansible روی سرور بکاپ</title>
+    <style>
+        @font-face {
+            font-family: 'Vazir';
+            src: url('https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font/dist/Vazir.woff2') format('woff2');
+        }
+        body {
+            font-family: 'Vazir', sans-serif;
+            background: #f4f6f8;
+            color: #333;
+            padding: 40px;
+            line-height: 1.8;
+        }
+        h1, h2 {
+            color: #0d6efd;
+        }
+        .section {
+            margin-bottom: 40px;
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 0 12px rgba(0,0,0,0.06);
+        }
+        code, pre {
+            background: #f1f1f1;
+            padding: 12px;
+            display: block;
+            direction: ltr;
+            text-align: left;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+        ul, ol {
+            margin-right: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>📘 مستند کامل راه‌اندازی Ansible روی سرور بکاپ</h1>
+
+    <div class="section">
+        <h2>۱. 🎯 Ansible چیست و چرا از آن استفاده کنیم؟</h2>
+        <p>Ansible یک ابزار اتوماسیون متن‌باز است که برای مدیریت پیکربندی، اجرای اسکریپت و هماهنگ‌سازی بین سرورها استفاده می‌شود. بدون نیاز به نصب agent روی سرورهای مقصد، از طریق SSH با آن‌ها ارتباط برقرار می‌کند.</p>
+        <ul>
+            <li>بدون نیاز به Agent</li>
+            <li>بسیار ساده و YAML محور</li>
+            <li>امن و قابل گسترش</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>۲. 🧱 معماری پروژه</h2>
+        <p>در این پروژه، یک سرور مرکزی (سرور بکاپ) وجود دارد که Ansible روی آن نصب می‌شود. این سرور از طریق SSH و کلید خصوصی به سایر سرورها متصل می‌شود.</p>
+        <ul>
+            <li>سرور بکاپ → نود کنترل (Control Node)</li>
+            <li>سرورهای مقصد → بدون نیاز به نصب Ansible</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>۳. 📦 پیش‌نیازها</h2>
+        <p>برای شروع نیاز به شرایط زیر داریم:</p>
+        <ul>
+            <li>دسترسی root یا sudo روی سرور بکاپ</li>
+            <li>Python 3 روی همه سرورها</li>
+            <li>کلید SSH معتبر برای اتصال بدون رمز عبور</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>۴. 🧰 نصب Ansible روی سرور بکاپ</h2>
+        <p>دستور نصب روی Ubuntu:</p>
+        <pre>
+sudo apt update
+sudo apt install -y software-properties-common
+sudo add-apt-repository --yes --update ppa:ansible/ansible
+sudo apt install -y ansible
+        </pre>
+        <p>بررسی نصب:</p>
+        <pre>ansible --version</pre>
+    </div>
+
+    <div class="section">
+        <h2>۵. 🗂️ ساخت ساختار پروژه Ansible</h2>
+        <pre>
+ansible-backup/
+├── ansible.cfg
+├── inventory/
+│   └── hosts.ini
+├── playbooks/
+│   └── run-script.yml
+        </pre>
+        <p>این ساختار برای پروژه‌های کوچک و ساده کاملاً مناسب است.</p>
+    </div>
+
+    <div class="section">
+        <h2>۶. 📝 فایل ansible.cfg</h2>
+        <pre>[defaults]
+inventory = ./inventory/hosts.ini
+host_key_checking = False
+remote_user = root
+private_key_file = ~/.ssh/id_rsa</pre>
+    </div>
+
+    <div class="section">
+        <h2>۷. 🧩 فایل inventory با لیست سرورها</h2>
+        <pre>[all_servers]
+10.129.0.18
+10.130.0.18
+10.135.0.18
+
+[all_servers:vars]
+ansible_user=root
+ansible_python_interpreter=/usr/bin/python3</pre>
+    </div>
+
+    <div class="section">
+        <h2>۸. ✍️ نوشتن Playbook برای اجرای اسکریپت</h2>
+        <pre>- name: Run custom shell script
+  hosts: all_servers
+  tasks:
+    - name: Execute script
+      shell: /path/to/your/script.sh</pre>
+    </div>
+
+    <div class="section">
+        <h2>۹. ▶️ اجرای Playbook</h2>
+        <p>برای اجرای اسکریپت:</p>
+        <pre>
+cd ansible-backup
+ansible-playbook playbooks/run-script.yml
+        </pre>
+    </div>
+
+    <div class="section">
+        <h2>۱۰. 🔐 نکات امنیتی مهم</h2>
+        <ul>
+            <li>کلید خصوصی SSH را ایمن نگه دارید</li>
+            <li>فایروال و محدودسازی دسترسی به سرور بکاپ</li>
+            <li>تست ابتدا روی یک یا دو سرور قبل از اجرای سراسری</li>
+        </ul>
+    </div>
+
+</body>
+</html>
